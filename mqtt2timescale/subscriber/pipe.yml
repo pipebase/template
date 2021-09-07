@@ -1,0 +1,113 @@
+name: mqtt2timescale_subscriber
+dependencies:
+  - name: serde
+    version: 1.0
+    modules: [serde::Deserialize]
+  - name: chrono
+    version: 0.4
+    features: ["serde"]
+    modules: []
+pipes:
+  - name: mqtt_subscriber
+    config:
+      ty: MqttSubscriberConfig
+      path: catalogs/mqtt_subscriber.yml
+    output: UnsignedBytes
+  - name: json_deser
+    config:
+      ty: JsonDeserConfig
+    output:
+      Object: WeatherMetric
+    upstreams: [mqtt_subscriber]
+  - name: metric_collector
+    config:
+      ty: InMemoryBagCollectorConfig
+      path: catalogs/bag_collector.yml
+    upstreams: [json_deser]
+    output:
+      Objects: WeatherMetric
+  - name: batch_psql_writer
+    config:
+      ty: PsqlPreparedWriterConfig
+      path: catalogs/batch_psql_writer.yml
+    upstreams: [metric_collector]
+objects:
+  - ty: WeatherMetric
+    metas:
+      - derives: [Clone, Debug, Deserialize, IntoAttributes]
+    fields:
+      - name: time
+        ty: DateTime
+        metas:
+          - serde:
+              with: date_time_without_timezone
+      - name: timezone_shift
+        ty:
+          Option: 
+            ty: Integer
+      - name: city_name
+        ty:
+          Option:
+            ty: String
+      - name: temp_c
+        ty:
+          Option:
+            ty: Double
+      - name: feels_like_c
+        ty:
+          Option:
+            ty: Double
+      - name: temp_min_c
+        ty:
+          Option:
+            ty: Double
+      - name: temp_max_c
+        ty:
+          Option:
+            ty: Double
+      - name: pressure_hpa
+        ty:
+          Option:
+            ty: Double
+      - name: humidity_percent
+        ty:
+          Option:
+            ty: Double
+      - name: wind_speed_ms
+        ty:
+          Option:
+            ty: Double
+      - name: wind_deg
+        ty:
+          Option: 
+            ty: Integer
+      - name: rain_1h_mm
+        ty:
+          Option:
+            ty: Double
+      - name: rain_3h_mm
+        ty:
+          Option:
+            ty: Double
+      - name: snow_1h_mm
+        ty:
+          Option:
+            ty: Double
+      - name: snow_3h_mm
+        ty:
+          Option:
+            ty: Double
+      - name: clouds_percent
+        ty:
+          Option: 
+            ty: Integer
+      - name: weather_type_id
+        ty:
+          Option: 
+            ty: Integer
+cstores:
+  - name: context_server
+    config:
+      ty: WarpContextServerConfig
+      path: catalogs/context_server.yml
+      
