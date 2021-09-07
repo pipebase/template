@@ -1,0 +1,4 @@
+---
+# reference: https://github.com/sfackler/rust-postgres/blob/master/postgres/src/config.rs
+params: "host=timescaledb port=5432 user=postgres password=postgres dbname=postgres"
+statement: INSERT INTO weather_metrics (time, timezone_shift, city_name, temp_c, feels_like_c, temp_min_c, temp_max_c, pressure_hpa, humidity_percent, wind_speed_ms, wind_deg, rain_1h_mm, rain_3h_mm, snow_1h_mm, snow_3h_mm, clouds_percent, weather_type_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
