@@ -86,12 +86,12 @@ login
 docker exec -it timescaledb /bin/bash
 psql -U postgres -d postgres -w
 ```
-find the average temperature per 15 day period, for each city, in the past 6 months
+find the average temperature per 15 day period, for each city, in the past 12 months
 ```sql
 SELECT time_bucket('15 days', time) as "bucket"
    ,city_name, avg(temp_c)
    FROM weather_metrics
-   WHERE time > now() - (6* INTERVAL '1 month')
+   WHERE time > now() - (12* INTERVAL '1 month')
    GROUP BY bucket, city_name
    ORDER BY bucket DESC;
 ```
